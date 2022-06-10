@@ -28,7 +28,7 @@
       inputUri: `gs://${metadata.bucket}/${metadata.fullPath}`,
       outputUri: `gs://${metadata.bucket}/transcoded/${metadata.name}`,
     })
-    const idToken = user.getIdToken()
+    const idToken = await user.getIdToken()
     const response = await _fetch(`${transcodeVideoEndpoint}?${query}`, {
       headers: {
         authorization: `Bearer ${idToken}`,
@@ -42,7 +42,7 @@
     if (typeof file === 'undefined') {
       throw new Error('Video not specified!')
     }
-    await startTranscode(context, file)
+    await startTranscode(context, user, file)
   }
 
   let error: Error | undefined
