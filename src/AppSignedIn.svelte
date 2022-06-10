@@ -21,17 +21,17 @@
 
   const context = DEFAULT_CONTEXT
 
-  export async function startTranscode (file: File, _fetch = fetch) {
+  export async function startTranscode(file: File, _fetch = fetch) {
     const storageRef = ref(storage, `source/${file.name}`)
     const { metadata } = await uploadBytes(storageRef, file)
     const query = new URLSearchParams({
       inputUri: `gs://${metadata.bucket}/${metadata.fullPath}`,
-      outputUri: `gs://${metadata.bucket}/transcoded/${metadata.name}`
+      outputUri: `gs://${metadata.bucket}/transcoded/${metadata.name}`,
     })
     console.log(query.toString())
   }
 
-  export async function handleClickSubmit () {
+  export async function handleClickSubmit() {
     const [file] = files
     if (typeof file === 'undefined') {
       throw new Error('Video not specified!')
