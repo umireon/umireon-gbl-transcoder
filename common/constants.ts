@@ -1,6 +1,10 @@
-export interface AppContext {}
+export interface AppContext {
+  readonly location: string
+}
 
-export const DEFAULT_CONTEXT: AppContext = {} as const
+export const DEFAULT_CONTEXT: AppContext = {
+  location: 'asia-northeast1'
+} as const
 
 export const firebaseConfig = {
   apiKey: 'AIzaSyBPw7N0RrYVVS62uqR1rpewDBHrgck1jW0',
