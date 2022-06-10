@@ -1,8 +1,8 @@
 <script lang="ts">
+  import { type AppContext, DEFAULT_CONTEXT } from '../common/constants'
   import { type Auth, type User } from 'firebase/auth'
 
   import { type Analytics } from 'firebase/analytics'
-  import { DEFAULT_CONTEXT } from '../common/constants'
   import { type Firestore } from 'firebase/firestore'
   import Logout from './lib/Logout.svelte'
   import { type FirebaseStorage, ref, uploadBytes } from 'firebase/storage'
@@ -21,14 +21,20 @@
 
   const context = DEFAULT_CONTEXT
 
-  export async function startTranscode(file: File, _fetch = fetch) {
+  export async function startTranscode({ transcodeVideoEndpoint }: AppContext, user: User, file: File, _fetch = fetch) {
     const storageRef = ref(storage, `source/${file.name}`)
     const { metadata } = await uploadBytes(storageRef, file)
     const query = new URLSearchParams({
       inputUri: `gs://${metadata.bucket}/${metadata.fullPath}`,
       outputUri: `gs://${metadata.bucket}/transcoded/${metadata.name}`,
     })
-    console.log(query.toString())
+    const idToken = user.getIdToken()
+    const response = await _fetch(`${transcodeVideoEndpoint}?${query}`, {
+      headers: {
+        authorization: `Bearer ${idToken}`,
+      }
+    })
+    console.log(await response.json())
   }
 
   export async function handleClickSubmit() {
@@ -36,7 +42,7 @@
     if (typeof file === 'undefined') {
       throw new Error('Video not specified!')
     }
-    await startTranscode(file)
+    await startTranscode(context, file)
   }
 
   let error: Error | undefined
