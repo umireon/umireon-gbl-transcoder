@@ -37,8 +37,8 @@ http('transcode-video', async (req, res) => {
                 bitrateBps: 2000000,
                 frameRate: 60,
                 profile: 'main',
-              },
-            },
+              }
+            }
           },
           {
             audioStream: {
@@ -46,23 +46,22 @@ http('transcode-video', async (req, res) => {
               codec: 'aac',
             },
             key: 'audio-stream0',
-          },
+          }
         ],
         muxStreams: [
           {
             container: 'mp4',
             elementaryStreams: ['video-stream0', 'audio-stream0'],
             key: 'sd',
-          },
-        ],
+          }
+        ]
       },
       inputUri,
       outputUri,
     },
     parent: transcoderServiceClient.locationPath(PROJECT_ID, CONTEXT.location),
   })
-
-  response// Compose response
-  .res
-    .send(response)
+  
+  // Compose response
+  res.send(response)
 })
