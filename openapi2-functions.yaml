@@ -1,0 +1,53 @@
+swagger: '2.0'
+info:
+  title: 'umireon-gbl-transcoder backend'
+  description: 'API of the GBL video transcoder.'
+  version: '0.1.0'
+schemes:
+  - 'https'
+produces:
+  - 'application/json'
+securityDefinitions:
+  firebase:
+    authorizationUrl: ''
+    flow: 'implicit'
+    type: 'oauth2'
+    x-google-issuer: 'https://securetoken.google.com/chattranslatorbot'
+    x-google-jwks_uri: 'https://www.googleapis.com/service_accounts/v1/metadata/x509/securetoken@system.gserviceaccount.com'
+    x-google-audiences: 'chattranslatorbot'
+paths:
+  /transcode-video:
+    get:
+      summary: 'Transcode video'
+      operationId: 'transcode-video'
+      x-google-backend:
+        address: 'https://transcode-video-zk2hmhvnrq-an.a.run.app'
+      security:
+        - firebase: []
+      parameters:
+        - in: 'query'
+          name: 'inputUri'
+          type: 'string'
+        - in: 'query'
+          name: 'outputUri'
+          type: 'string'
+      responses:
+        '200':
+          description: 'A successful response'
+          schema:
+            type: 'object'
+            properties:
+              audioContent:
+                type: 'string'
+              language:
+                type: 'string'
+        '204':
+          description: 'Keep Alive'
+    options:
+      summary: 'Transcode videot Preflight'
+      operationId: 'transcode-video-preflight'
+      x-google-backend:
+        address: 'https://transcode-video-zk2hmhvnrq-an.a.run.app'
+      responses:
+        '204':
+          description: 'A successful response'
