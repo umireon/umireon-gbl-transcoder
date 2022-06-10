@@ -9,7 +9,7 @@ export const handleCors: HttpFunction = (req, res) => {
     } else {
       res.set(
         'Access-Control-Allow-Origin',
-        'https://chattranslatorbot.web.app'
+        'https://umireon-gbl-transcoder.web.app'
       )
     }
   }
