@@ -58,9 +58,8 @@
   {/if}
   <input type="file" bind:files />
   <button on:click={handleClickSubmit}>送信</button>
-  {#if disabled === false}
-    30秒くらい待ってください
-  {/if}
+  送信押したら30秒くらい待ってください。
+  ダウンロードが押せるようになってから30秒くらい待ってください
   <a href={url}><button {disabled}>ダウンロード</button></a>
   <Logout {auth} />
 </main>
