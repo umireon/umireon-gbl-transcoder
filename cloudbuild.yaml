@@ -1,11 +1,11 @@
 steps:
-  - name: 'node:16-bullseye-slim'
+  - name: 'node:18-bullseye-slim'
     args:
       - 'npm'
       - 'ci'
     id: 'npm ci'
 
-  - name: 'node:16-bullseye-slim'
+  - name: 'node:18-bullseye-slim'
     args:
       - 'npm'
       - 'run'
@@ -29,7 +29,7 @@ steps:
     waitFor:
       - 'npm run build-functions'
 
-  - name: 'node:16-bullseye-slim'
+  - name: 'node:18-bullseye-slim'
     args:
       - 'npm'
       - 'run'
