@@ -3,7 +3,7 @@ export interface AppContext {
 }
 
 export const DEFAULT_CONTEXT: AppContext = {
-  location: 'asia-northeast1'
+  location: 'asia-northeast1',
 } as const
 
 export const firebaseConfig = {
