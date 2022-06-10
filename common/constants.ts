@@ -4,7 +4,7 @@ export interface AppContext {
 }
 
 export const DEFAULT_CONTEXT: AppContext = {
-  location: 'asia-northeast1',
+  location: 'asia-east1',
   transcodeVideoEndpoint: 'https://umireon-gbl-transcoder-cuxpzdah.an.gateway.dev/transcode-video',
 } as const
 
