@@ -27,6 +27,7 @@
   let src: string = ''
   let uploadProgressText: string | undefined
   let transcoding: boolean = false
+  let disabled: boolean = true
 
   const context = DEFAULT_CONTEXT
 
@@ -53,7 +54,7 @@
     })
   }
 
-  interface StartTranscodeResult {
+  interface TranscodedVideo {
     readonly name: string
   }
 
@@ -62,7 +63,7 @@
     snapshot: UploadTaskSnapshot,
     user: User,
     _fetch = fetch
-  ): Promise<StartTranscodeResult> {
+  ): Promise<TranscodedVideo> {
     const { bucket, fullPath, name } = snapshot.metadata
     const basename = name.replace(/\.[^.]+$/, '')
     const query = new URLSearchParams({
@@ -86,7 +87,7 @@
 
   export async function checkDownloadable(
     { checkDownloadableEndpoint }: AppContext,
-    { name }: StartTranscodeResult,
+    { name }: TranscodedVideo,
     _fetch = fetch
   ): Promise<boolean> {
     const query = new URLSearchParams({
@@ -131,6 +132,20 @@
     const { name } = file
     const basename = name.replace(/\.[^.]+$/, '')
     src = await getDownloadURL(ref(storage, `transcoded/${basename}.mp4`))
+    disabled = false
+  }
+  
+  export async function handleChangeFile() {
+    const [file] = files
+    if (typeof file !== 'undefined') {
+      const name = file.name.replace(/\.[^.]+$/, '.mp4')
+      const transcodedVideo: TranscodedVideo = { name }
+      const ok = await checkDownloadable(context, transcodedVideo)
+      if (ok) {
+        src = await getDownloadURL(ref(storage, `transcoded/${name}`))
+      }
+      disabled = !ok
+    }
   }
 
   let error: Error | undefined
@@ -141,17 +156,16 @@
     <h2>{error.message}</h2>
   {/if}
   <p>
-    <input type="file" bind:files />
+    <input type="file" bind:files on:change={handleChangeFile} />
     <button on:click={handleClickSubmit}>送信</button>
   </p>
   <p>{uploadProgressText ?? ''}</p>
   {#if transcoding}
     <div id="uploading" class="dot-bricks" style="margin: 10px;" />
-    <p>60秒待ってください!</p>
   {/if}
   <p>
     <button on:click={handleClickShow}>表示</button>
-    <a href={src} download="a.mp4">ダウンロード（長押し）</a>
+    <a href={src} download="a.mp4"><button {disabled}>ダウンロード</button></a>
   </p>
   <p>
     表示ボタンを押して、動画が表示されたらダウンロードボタンでダウンロードできます
