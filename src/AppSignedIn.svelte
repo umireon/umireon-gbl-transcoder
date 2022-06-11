@@ -120,7 +120,7 @@
       })
       ok = await checkDownloadable(context, result)
     }
-    console.log('ok')
+    transcoding = false
   }
 
   export async function handleClickShow() {
