@@ -116,7 +116,7 @@
     let ok = await checkDownloadable(context, result)
     while (!ok) {
       await new Promise((resolve) => {
-        setTimeout(resolve, 60000)
+        setTimeout(resolve, 10000)
       })
       ok = await checkDownloadable(context, result)
     }
