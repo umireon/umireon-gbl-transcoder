@@ -95,10 +95,10 @@
     <input type="file" bind:files />
     <button on:click={handleClickSubmit}>送信</button>
   </p>
+  <p>{uploadProgressText ?? ''}</p>
   {#if transcoding}
     <div id="uploading" class="dot-bricks" style="margin: 10px;"></div>
   {/if}
-  <p>{uploadProgressText ?? ''}</p>
   <p>
     <button on:click={handleClickShow}>表示</button>
     <a href={src} download="a.mp4">ダウンロード（長押し）</a>
