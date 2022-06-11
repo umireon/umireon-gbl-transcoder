@@ -88,7 +88,7 @@ http('check-downloadable', async (req, res) => {
 
   const bucket = storage.bucket()
   const file = bucket.file(`transcoded/${name}`)
-  const fileExists = await file.exists()
+  const [fileExists] = await file.exists()
   if (fileExists) {
     await file.setMetadata({
       contentDisposition: 'attachment',
