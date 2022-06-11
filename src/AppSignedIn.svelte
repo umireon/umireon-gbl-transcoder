@@ -5,7 +5,12 @@
   import { type Analytics } from 'firebase/analytics'
   import { type Firestore } from 'firebase/firestore'
   import Logout from './lib/Logout.svelte'
-  import { type FirebaseStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
+  import {
+    type FirebaseStorage,
+    ref,
+    uploadBytesResumable,
+    getDownloadURL,
+  } from 'firebase/storage'
 
   import 'three-dots/dist/three-dots.min.css'
 
@@ -23,31 +28,38 @@
 
   const context = DEFAULT_CONTEXT
 
-  export async function startTranscode({ transcodeVideoEndpoint }: AppContext, user: User, file: File, _fetch = fetch) {
+  export async function startTranscode(
+    { transcodeVideoEndpoint }: AppContext,
+    user: User,
+    file: File,
+    _fetch = fetch
+  ) {
     const storageRef = ref(storage, `source/${file.name}`)
     const uploadTask = uploadBytesResumable(storageRef, file)
-    uploadTask.on('state_changed',
-      snapshot => {
+    uploadTask.on(
+      'state_changed',
+      (snapshot) => {
         uploadProgressText = `${snapshot.bytesTransferred}B / ${snapshot.totalBytes}B`
       },
-      error => {},
+      (error) => {},
       async () => {
         uploadProgressText = 'Completed!'
-        const { bucket, fullPath, name} = uploadTask.snapshot.metadata
+        const { bucket, fullPath, name } = uploadTask.snapshot.metadata
+        const basename = name.replace(/\.[^.]+$/, '')
         const query = new URLSearchParams({
           inputUri: `gs://${bucket}/${fullPath}`,
-          name: name,
+          name: basename,
           outputUri: `gs://${bucket}/transcoded/`,
         })
         const idToken = await user.getIdToken()
         const response = await _fetch(`${transcodeVideoEndpoint}?${query}`, {
           headers: {
             authorization: `Bearer ${idToken}`,
-          }
+          },
         })
         console.log(await response.json())
       }
-      )
+    )
   }
 
   export async function handleClickSubmit() {
@@ -59,7 +71,13 @@
   }
 
   export async function handleClickShow() {
-    src = await getDownloadURL(ref(storage, 'transcoded/sd.mp4'))
+    const [file] = files
+    if (typeof file === 'undefined') {
+      throw new Error('Video not specified!')
+    }
+    const { name } = file
+    const basename = name.replace(/\.[^.]+$/, '')
+    src = await getDownloadURL(ref(storage, `transcoded/${basename}.mp4`))
   }
 
   let error: Error | undefined
@@ -78,6 +96,7 @@
     <button on:click={handleClickShow}>表示</button>
     <a href={src} download="a.mp4"><button>ダウンロード</button></a>
   </p>
-  <p><video {src} width="200" height="200" controls></video></p>
+  <p>表示ボタンを押して、動画が表示されたらダウンロードボタンでダウンロードできます</p>
+  <p><video {src} width="200" height="200" controls /></p>
   <Logout {auth} />
 </main>
