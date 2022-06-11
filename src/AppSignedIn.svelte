@@ -35,6 +35,7 @@
     file: File,
     _fetch = fetch
   ) {
+    transcoding = true
     const storageRef = ref(storage, `source/${file.name}`)
     const uploadTask = uploadBytesResumable(storageRef, file)
     uploadTask.on(
@@ -59,7 +60,6 @@
           },
         })
         console.log(await response.json())
-        transcoding = true
         await new Promise(resolve => setTimeout(resolve, 60000))
         transcoding = false
       }
@@ -98,6 +98,7 @@
   <p>{uploadProgressText ?? ''}</p>
   {#if transcoding}
     <div id="uploading" class="dot-bricks" style="margin: 10px;"></div>
+    <p>60秒待ってください!</p>
   {/if}
   <p>
     <button on:click={handleClickShow}>表示</button>
