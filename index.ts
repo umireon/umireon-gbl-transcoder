@@ -4,7 +4,7 @@ import { TranscoderServiceClient } from '@google-cloud/video-transcoder'
 import { getStorage } from 'firebase-admin/storage'
 import { handleCors } from './service/cors.js'
 import { http } from '@google-cloud/functions-framework'
-import { initializeApp } from 'firebase-admin'
+import { initializeApp } from 'firebase-admin/app'
 
 const CONTEXT = DEFAULT_CONTEXT
 const transcoderServiceClient = new TranscoderServiceClient()
@@ -75,7 +75,6 @@ http('transcode-video', async (req, res) => {
   console.log(response)
   res.status(204).send('')
 })
-
 
 http('check-downloadable', async (req, res) => {
   if (!handleCors(req, res)) return
