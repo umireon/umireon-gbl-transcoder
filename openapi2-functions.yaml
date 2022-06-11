@@ -32,22 +32,39 @@ paths:
           name: 'outputUri'
           type: 'string'
       responses:
-        '200':
-          description: 'A successful response'
-          schema:
-            type: 'object'
-            properties:
-              audioContent:
-                type: 'string'
-              language:
-                type: 'string'
         '204':
-          description: 'Keep Alive'
+          description: 'A successful response'
     options:
-      summary: 'Transcode videot Preflight'
+      summary: 'Transcode video Preflight'
       operationId: 'transcode-video-preflight'
       x-google-backend:
         address: 'https://transcode-video-zk2hmhvnrq-an.a.run.app'
+      responses:
+        '204':
+          description: 'A successful response'
+
+  /check-downloadable:
+    get:
+      summary: 'Check downloadable'
+      operationId: 'check-downloadable'
+      x-google-backend:
+        address: 'https://check-downloadable-zk2hmhvnrq-an.a.run.app'
+      security:
+        - firebase: []
+      parameters:
+        - in: 'query'
+          name: 'name'
+          type: 'string'
+      responses:
+        '204':
+          description: 'A successful response'
+        '404':
+          description: 'Content not ready'
+    options:
+      summary: 'Check downloadable Preflight'
+      operationId: 'check-downloadable-preflight'
+      x-google-backend:
+        address: 'https://check-downloadable-zk2hmhvnrq-an.a.run.app'
       responses:
         '204':
           description: 'A successful response'

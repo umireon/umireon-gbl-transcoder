@@ -1,10 +1,15 @@
-import { DEFAULT_CONTEXT } from './common/constants.js'
+import { DEFAULT_CONTEXT, firebaseConfig } from './common/constants.js'
+
 import { TranscoderServiceClient } from '@google-cloud/video-transcoder'
+import { getStorage } from 'firebase-admin/storage'
 import { handleCors } from './service/cors.js'
 import { http } from '@google-cloud/functions-framework'
+import { initializeApp } from 'firebase-admin'
 
 const CONTEXT = DEFAULT_CONTEXT
 const transcoderServiceClient = new TranscoderServiceClient()
+const app = initializeApp(firebaseConfig)
+const storage = getStorage(app)
 
 http('transcode-video', async (req, res) => {
   if (!handleCors(req, res)) return
@@ -67,5 +72,30 @@ http('transcode-video', async (req, res) => {
   })
 
   // Compose response
-  res.send(response)
+  console.log(response)
+  res.status(204).send('')
+})
+
+
+http('check-downloadable', async (req, res) => {
+  if (!handleCors(req, res)) return
+
+  // Validate query
+  if (typeof req.query.name !== 'string') {
+    res.status(400).send('Invalid name')
+    return
+  }
+  const { name } = req.query
+
+  const bucket = storage.bucket()
+  const file = bucket.file(`transcoded/${name}`)
+  const fileExists = await file.exists()
+  if (fileExists) {
+    file.setMetadata({
+      contentDisposition: 'attachment'
+    })
+    res.status(204).send('')
+  } else {
+    res.status(404).send('')
+  }
 })
