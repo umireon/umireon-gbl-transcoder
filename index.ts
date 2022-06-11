@@ -20,11 +20,15 @@ http('transcode-video', async (req, res) => {
     res.status(400).send('Invalid inputUri')
     return
   }
+  if (typeof req.query.name !== 'string') {
+    res.status(400).send('Invalid name')
+    return
+  }
   if (typeof req.query.outputUri !== 'string') {
     res.status(400).send('Invalid outputUri')
     return
   }
-  const { inputUri, outputUri } = req.query
+  const { inputUri, name, outputUri } = req.query
 
   const [response] = await transcoderServiceClient.createJob({
     job: {
@@ -52,7 +56,7 @@ http('transcode-video', async (req, res) => {
           {
             container: 'mp4',
             elementaryStreams: ['video-stream0', 'audio-stream0'],
-            key: 'sd',
+            key: name,
           }
         ]
       },
