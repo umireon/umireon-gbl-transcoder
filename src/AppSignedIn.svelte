@@ -25,6 +25,7 @@
   let files: FileList
   let src: string = ''
   let uploadProgressText: string | undefined
+  let transcoding: boolean = false
 
   const context = DEFAULT_CONTEXT
 
@@ -58,6 +59,9 @@
           },
         })
         console.log(await response.json())
+        transcoding = true
+        await new Promise(resolve => setTimeout(resolve, 60000))
+        transcoding = false
       }
     )
   }
@@ -91,10 +95,13 @@
     <input type="file" bind:files />
     <button on:click={handleClickSubmit}>送信</button>
   </p>
+  {#if transcoding}
+    <div id="uploading" class="dot-bricks" style="margin: 10px;"></div>
+  {/if}
   <p>{uploadProgressText ?? ''}</p>
   <p>
     <button on:click={handleClickShow}>表示</button>
-    <a href={src} download="a.mp4"><button>ダウンロード</button></a>
+    <a href={src} download="a.mp4">ダウンロード（長押し）</a>
   </p>
   <p>表示ボタンを押して、動画が表示されたらダウンロードボタンでダウンロードできます</p>
   <p><video {src} width="200" height="200" controls /></p>
