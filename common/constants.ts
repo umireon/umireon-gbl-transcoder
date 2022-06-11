@@ -1,9 +1,12 @@
 export interface AppContext {
+  readonly checkDownloadableEndpoint: string
   readonly location: string
   readonly transcodeVideoEndpoint: string
 }
 
 export const DEFAULT_CONTEXT: AppContext = {
+  checkDownloadableEndpoint:
+    'https://umireon-gbl-transcoder-cuxpzdah.an.gateway.dev/check-downloadable',
   location: 'asia-east1',
   transcodeVideoEndpoint:
     'https://umireon-gbl-transcoder-cuxpzdah.an.gateway.dev/transcode-video',

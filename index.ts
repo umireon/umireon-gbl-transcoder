@@ -25,15 +25,15 @@ http('transcode-video', async (req, res) => {
     res.status(400).send('Invalid inputUri')
     return
   }
-  if (typeof req.query.name !== 'string') {
-    res.status(400).send('Invalid name')
+  if (typeof req.query.basename !== 'string') {
+    res.status(400).send('Invalid basename')
     return
   }
   if (typeof req.query.outputUri !== 'string') {
     res.status(400).send('Invalid outputUri')
     return
   }
-  const { inputUri, name, outputUri } = req.query
+  const { basename, inputUri, outputUri } = req.query
 
   const [response] = await transcoderServiceClient.createJob({
     job: {
@@ -61,7 +61,7 @@ http('transcode-video', async (req, res) => {
           {
             container: 'mp4',
             elementaryStreams: ['video-stream0', 'audio-stream0'],
-            key: name,
+            key: basename,
           },
         ],
       },
@@ -90,8 +90,8 @@ http('check-downloadable', async (req, res) => {
   const file = bucket.file(`transcoded/${name}`)
   const fileExists = await file.exists()
   if (fileExists) {
-    file.setMetadata({
-      contentDisposition: 'attachment'
+    await file.setMetadata({
+      contentDisposition: 'attachment',
     })
     res.status(204).send('')
   } else {

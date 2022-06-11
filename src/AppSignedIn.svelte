@@ -10,6 +10,7 @@
     ref,
     uploadBytesResumable,
     getDownloadURL,
+    UploadTaskSnapshot,
   } from 'firebase/storage'
 
   import 'three-dots/dist/three-dots.min.css'
@@ -29,41 +30,75 @@
 
   const context = DEFAULT_CONTEXT
 
-  export async function startTranscode(
-    { transcodeVideoEndpoint }: AppContext,
-    user: User,
+  type UploadVideoOnProgressFunction = (snapshot: UploadTaskSnapshot) => void
+
+  export async function uploadVideo(
     file: File,
+    onProgress: UploadVideoOnProgressFunction,
     _fetch = fetch
-  ) {
-    transcoding = true
+  ): Promise<UploadTaskSnapshot> {
     const storageRef = ref(storage, `source/${file.name}`)
     const uploadTask = uploadBytesResumable(storageRef, file)
-    uploadTask.on(
-      'state_changed',
-      (snapshot) => {
-        uploadProgressText = `${snapshot.bytesTransferred}B / ${snapshot.totalBytes}B`
+    return new Promise<UploadTaskSnapshot>((resolve, reject) => {
+      uploadTask.on(
+        'state_changed',
+        onProgress,
+        (error) => {
+          reject(error)
+        },
+        () => {
+          resolve(uploadTask.snapshot)
+        }
+      )
+    })
+  }
+
+  interface StartTranscodeResult {
+    readonly name: string
+  }
+
+  export async function startTranscode(
+    { transcodeVideoEndpoint }: AppContext,
+    snapshot: UploadTaskSnapshot,
+    user: User,
+    _fetch = fetch
+  ): Promise<StartTranscodeResult> {
+    const { bucket, fullPath, name } = snapshot.metadata
+    const basename = name.replace(/\.[^.]+$/, '')
+    const query = new URLSearchParams({
+      basename,
+      inputUri: `gs://${bucket}/${fullPath}`,
+      outputUri: `gs://${bucket}/transcoded/`,
+    })
+    const idToken = await user.getIdToken()
+    const response = await _fetch(`${transcodeVideoEndpoint}?${query}`, {
+      headers: {
+        authorization: `Bearer ${idToken}`,
       },
-      (error) => {},
-      async () => {
-        uploadProgressText = 'Completed!'
-        const { bucket, fullPath, name } = uploadTask.snapshot.metadata
-        const basename = name.replace(/\.[^.]+$/, '')
-        const query = new URLSearchParams({
-          inputUri: `gs://${bucket}/${fullPath}`,
-          name: basename,
-          outputUri: `gs://${bucket}/transcoded/`,
-        })
-        const idToken = await user.getIdToken()
-        const response = await _fetch(`${transcodeVideoEndpoint}?${query}`, {
-          headers: {
-            authorization: `Bearer ${idToken}`,
-          },
-        })
-        console.log(await response.json())
-        await new Promise(resolve => setTimeout(resolve, 60000))
-        transcoding = false
-      }
-    )
+    })
+    if (!response.ok) {
+      const text = await response.text()
+      console.error(text)
+      throw new Error('Invalid response')
+    }
+    return { name: `${basename}.mp4` }
+  }
+
+  export async function checkDownloadable(
+    { checkDownloadableEndpoint }: AppContext,
+    { name }: StartTranscodeResult,
+    _fetch = fetch
+  ): Promise<boolean> {
+    const query = new URLSearchParams({
+      name,
+    })
+    const idToken = await user.getIdToken()
+    const response = await _fetch(`${checkDownloadableEndpoint}?${query}`, {
+      headers: {
+        authorization: `Bearer ${idToken}`,
+      },
+    })
+    return response.ok
   }
 
   export async function handleClickSubmit() {
@@ -71,7 +106,21 @@
     if (typeof file === 'undefined') {
       throw new Error('Video not specified!')
     }
-    await startTranscode(context, user, file)
+    transcoding = true
+    const snapshot = await uploadVideo(file, (snapshot) => {
+      const { bytesTransferred, totalBytes } = snapshot
+      uploadProgressText = `${bytesTransferred}B / ${totalBytes}B`
+    })
+    uploadProgressText = 'Completed!'
+    const result = await startTranscode(context, snapshot, user)
+    let ok = await checkDownloadable(context, result)
+    while (!ok) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 60000)
+      })
+      ok = await checkDownloadable(context, result)
+    }
+    console.log('ok')
   }
 
   export async function handleClickShow() {
@@ -97,14 +146,16 @@
   </p>
   <p>{uploadProgressText ?? ''}</p>
   {#if transcoding}
-    <div id="uploading" class="dot-bricks" style="margin: 10px;"></div>
+    <div id="uploading" class="dot-bricks" style="margin: 10px;" />
     <p>60秒待ってください!</p>
   {/if}
   <p>
     <button on:click={handleClickShow}>表示</button>
     <a href={src} download="a.mp4">ダウンロード（長押し）</a>
   </p>
-  <p>表示ボタンを押して、動画が表示されたらダウンロードボタンでダウンロードできます</p>
+  <p>
+    表示ボタンを押して、動画が表示されたらダウンロードボタンでダウンロードできます
+  </p>
   <p><video {src} width="200" height="200" controls /></p>
   <Logout {auth} />
 </main>
