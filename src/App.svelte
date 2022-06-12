@@ -4,8 +4,6 @@
   import AppSignedIn from './AppSignedIn.svelte'
   import Logout from './lib/Logout.svelte'
   import { firebaseConfig } from '../common/constants'
-  import { getAnalytics } from 'firebase/analytics'
-  import { getFirestore } from 'firebase/firestore'
   import { getStorage } from 'firebase/storage'
   import { initializeApp } from 'firebase/app'
 
@@ -25,21 +23,16 @@
   }
 
   const app = initializeApp(firebaseConfig)
-  const analytics = getAnalytics(app)
   const auth = getAuth(app)
-  const db = getFirestore(app)
   const storage = getStorage(app)
-  const promise = initializeUser(auth).then(async (user) => {
-    const initialUserData = {}
-    return { initialUserData, user }
-  })
+  const promise = initializeUser(auth)
 </script>
 
 <main>
   {#await promise}
     <div id="app-loading" class="dot-bricks" style="margin: 10px;" />
-  {:then { initialUserData, user }}
-    <AppSignedIn {analytics} {auth} {db} {initialUserData} {storage} {user} />
+  {:then user}
+    <AppSignedIn {auth} {storage} {user} />
   {:catch}
     <h2 style="color: red;">An authentication error was occurred!</h2>
     <Logout {auth} />

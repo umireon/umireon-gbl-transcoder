@@ -15,13 +15,10 @@
 
   import 'three-dots/dist/three-dots.min.css'
 
-  export let analytics: Analytics
   export let auth: Auth
-  export let db: Firestore
   export let storage: FirebaseStorage
 
   export let user: User
-  export let initialUserData: {}
 
   let files: FileList
   let src: string = ''
@@ -56,7 +53,7 @@
   }
 
   interface TranscodedVideo {
-    readonly jobName: string
+    readonly jobName?: string
     readonly name: string
   }
 
@@ -94,9 +91,11 @@
     _fetch = fetch
   ): Promise<boolean> {
     const query = new URLSearchParams({
-      jobName,
       name,
     })
+    if (typeof jobName !== 'undefined') {
+      query.append('jobName', jobName)
+    }
     const idToken = await user.getIdToken()
     const response = await _fetch(`${checkDownloadableEndpoint}?${query}`, {
       headers: {
