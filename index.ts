@@ -70,31 +70,45 @@ http('transcode-video', async (req, res) => {
     },
     parent: transcoderServiceClient.locationPath(PROJECT_ID, CONTEXT.location),
   })
+  console.log(response)
 
   // Compose response
-  console.log(response)
-  res.status(204).send('')
+  const { name } = response
+  res.send({ name })
 })
 
 http('check-downloadable', async (req, res) => {
   if (!handleCors(req, res)) return
 
   // Validate query
+  if (typeof req.query.jobName !== 'string') {
+    res.status(400).send('Invalid jobName')
+    return
+  }
   if (typeof req.query.name !== 'string') {
     res.status(400).send('Invalid name')
     return
   }
-  const { name } = req.query
+  const { jobName, name } = req.query
 
-  const bucket = storage.bucket()
-  const file = bucket.file(`transcoded/${name}`)
-  const [fileExists] = await file.exists()
-  if (fileExists) {
-    await file.setMetadata({
-      contentDisposition: 'attachment',
-    })
-    res.status(204).send('')
-  } else {
-    res.status(404).send('')
+  const [{ error, state }] = await transcoderServiceClient.getJob({
+    name: jobName
+  })
+  if (state === 'PENDING' || state === 'RUNNING') {
+    res.status(404).send('Video not ready')
+  } else if (state === 'SUCCEEDED') {
+    const bucket = storage.bucket()
+    const file = bucket.file(`transcoded/${name}`)
+    const [fileExists] = await file.exists()
+    if (fileExists) {
+      await file.setMetadata({
+        contentDisposition: 'attachment',
+      })
+      res.status(204).send('')
+    } else {
+      res.status(500).send('Video not found')
+    }
+  } else if (state === 'FAILED') {
+    res.status(500).send(error)
   }
 })

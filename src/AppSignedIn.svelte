@@ -56,6 +56,7 @@
   }
 
   interface TranscodedVideo {
+    readonly jobName: string
     readonly name: string
   }
 
@@ -83,15 +84,17 @@
       console.error(text)
       throw new Error('Invalid response')
     }
-    return { name: `${basename}.mp4` }
+    const { name: jobName } = await response.json()
+    return { jobName, name: `${basename}.mp4` }
   }
 
   export async function checkDownloadable(
     { checkDownloadableEndpoint }: AppContext,
-    { name }: TranscodedVideo,
+    { jobName, name }: TranscodedVideo,
     _fetch = fetch
   ): Promise<boolean> {
     const query = new URLSearchParams({
+      jobName,
       name,
     })
     const idToken = await user.getIdToken()
@@ -100,6 +103,11 @@
         authorization: `Bearer ${idToken}`,
       },
     })
+    if (!response.ok) {
+      const text = response.text()
+      console.error(text)
+      throw new Error('Transcoding failed!')
+    }
     return response.ok
   }
 
