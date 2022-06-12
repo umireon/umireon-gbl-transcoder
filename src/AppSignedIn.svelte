@@ -28,6 +28,7 @@
   let uploadProgressText: string | undefined
   let transcoding: boolean = false
   let disabled: boolean = true
+  let estimatedTimeOfArrivalInSeconds: number = -1
 
   const context = DEFAULT_CONTEXT
 
@@ -115,12 +116,17 @@
     uploadProgressText = 'Completed!'
     const result = await startTranscode(context, snapshot, user)
     let ok = await checkDownloadable(context, result)
+    estimatedTimeOfArrivalInSeconds = 120
     while (!ok) {
       await new Promise((resolve) => {
-        setTimeout(resolve, 10000)
+        setTimeout(resolve, 1000)
       })
       ok = await checkDownloadable(context, result)
+      if (estimatedTimeOfArrivalInSeconds >= 10) {
+        estimatedTimeOfArrivalInSeconds -= 1
+      }
     }
+    estimatedTimeOfArrivalInSeconds = 0
     transcoding = false
   }
 
@@ -162,6 +168,12 @@
   <p>{uploadProgressText ?? ''}</p>
   {#if transcoding}
     <div id="uploading" class="dot-bricks" style="margin: 10px;" />
+  {/if}
+  {#if estimatedTimeOfArrivalInSeconds > 0}
+    <p>Transcoding will finish in {estimatedTimeOfArrivalInSeconds} seconds...</p>
+  {/if}
+  {#if estimatedTimeOfArrivalInSeconds === 0}
+    <p>Transcoding finished!</p>
   {/if}
   <p>
     <button on:click={handleClickShow}>表示</button>
