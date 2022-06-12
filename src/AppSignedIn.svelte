@@ -103,9 +103,9 @@
       },
     })
     if (!response.ok && response.status !== 404) {
-      const text = await response.text()
-      console.error(text)
-      throw new Error('Transcoding failed!')
+      const json = await response.json()
+      console.error(json)
+      throw new Error(JSON.stringify(json))
     }
     return response.ok
   }
@@ -121,9 +121,9 @@
       uploadProgressText = `${bytesTransferred}B / ${totalBytes}B`
     })
     uploadProgressText = 'Completed!'
+    estimatedTimeOfArrivalInSeconds = 120
     const result = await startTranscode(context, snapshot, user)
     let ok = await checkDownloadable(context, result)
-    estimatedTimeOfArrivalInSeconds = 120
     try {
       while (!ok) {
         await new Promise((resolve) => {
@@ -178,7 +178,7 @@
 
 <main>
   {#if typeof error !== 'undefined'}
-    <h2>{error.message}</h2>
+    <h2 style="color: red;">{error.message}</h2>
   {/if}
   <p>
     <input type="file" bind:files on:change={handleChangeFile} />
