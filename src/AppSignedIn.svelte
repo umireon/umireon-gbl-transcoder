@@ -102,8 +102,8 @@
         authorization: `Bearer ${idToken}`,
       },
     })
-    if (!response.ok) {
-      const text = response.text()
+    if (!response.ok && response.status !== 404) {
+      const text = await response.text()
       console.error(text)
       throw new Error('Transcoding failed!')
     }

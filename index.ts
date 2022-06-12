@@ -110,7 +110,7 @@ http('check-downloadable', async (req, res) => {
     if (exists) {
       res.status(204).send('')
     } else {
-      res.status(500).send('Video not found')
+      res.status(404).send('Video not ready')
     }
   } else {
     const [{ error, state }] = await transcoderServiceClient.getJob({
