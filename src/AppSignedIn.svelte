@@ -124,13 +124,19 @@
     const result = await startTranscode(context, snapshot, user)
     let ok = await checkDownloadable(context, result)
     estimatedTimeOfArrivalInSeconds = 120
-    while (!ok) {
-      await new Promise((resolve) => {
-        setTimeout(resolve, 1000)
-      })
-      ok = await checkDownloadable(context, result)
-      if (estimatedTimeOfArrivalInSeconds >= 10) {
-        estimatedTimeOfArrivalInSeconds -= 1
+    try {
+      while (!ok) {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 1000)
+        })
+        ok = await checkDownloadable(context, result)
+        if (estimatedTimeOfArrivalInSeconds >= 10) {
+          estimatedTimeOfArrivalInSeconds -= 1
+        }
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        error = e
       }
     }
     estimatedTimeOfArrivalInSeconds = 0
@@ -153,11 +159,17 @@
     if (typeof file !== 'undefined') {
       const name = file.name.replace(/\.[^.]+$/, '.mp4')
       const transcodedVideo: TranscodedVideo = { name }
-      const ok = await checkDownloadable(context, transcodedVideo)
-      if (ok) {
-        src = await getDownloadURL(ref(storage, `transcoded/${name}`))
+      try {
+        const ok = await checkDownloadable(context, transcodedVideo)
+        if (ok) {
+          src = await getDownloadURL(ref(storage, `transcoded/${name}`))
+        }
+        disabled = !ok
+      } catch (e) {
+        if (e instanceof Error) {
+          error = e
+        }
       }
-      disabled = !ok
     }
   }
 
