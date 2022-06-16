@@ -3,7 +3,7 @@
 
   import AppSignedIn from './AppSignedIn.svelte'
   import Logout from './lib/Logout.svelte'
-  import { firebaseConfig } from '../common/constants'
+  import { DEFAULT_CONTEXT, firebaseConfig } from '../common/constants'
   import { getStorage } from 'firebase/storage'
   import { initializeApp } from 'firebase/app'
 
@@ -22,9 +22,12 @@
     return user
   }
 
+  const { transcodedBucket } = DEFAULT_CONTEXT
+
   const app = initializeApp(firebaseConfig)
   const auth = getAuth(app)
-  const storage = getStorage(app)
+  const defaultStorage = getStorage(app)
+  const transcodedStorage = getStorage(app, `gs://${transcodedBucket}`)
   const promise = initializeUser(auth)
 </script>
 
@@ -32,7 +35,13 @@
   {#await promise}
     <div id="app-loading" class="dot-bricks" style="margin: 10px;" />
   {:then user}
-    <AppSignedIn {auth} {storage} {user} />
+    <AppSignedIn
+      {auth}
+      context={DEFAULT_CONTEXT}
+      {defaultStorage}
+      {transcodedStorage}
+      {user}
+    />
   {:catch}
     <h2 style="color: red;">An authentication error was occurred!</h2>
     <Logout {auth} />

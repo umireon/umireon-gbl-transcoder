@@ -1,7 +1,8 @@
 import { DEFAULT_CONTEXT, firebaseConfig } from './common/constants.js'
-import { type Storage, getStorage } from 'firebase-admin/storage'
 
+import { type File } from '@google-cloud/storage'
 import { TranscoderServiceClient } from '@google-cloud/video-transcoder'
+import { getStorage } from 'firebase-admin/storage'
 import { handleCors } from './service/cors.js'
 import { http } from '@google-cloud/functions-framework'
 import { initializeApp } from 'firebase-admin/app'
@@ -77,9 +78,7 @@ http('transcode-video', async (req, res) => {
   res.send({ name })
 })
 
-export async function setContentDisposition(storage: Storage, name: string): Promise<boolean> {
-  const bucket = storage.bucket()
-  const file = bucket.file(`transcoded/${name}`)
+export async function setContentDisposition(file: File): Promise<boolean> {
   const [fileExists] = await file.exists()
   if (fileExists) {
     await file.setMetadata({
@@ -95,7 +94,10 @@ http('check-downloadable', async (req, res) => {
   if (!handleCors(req, res)) return
 
   // Validate query
-  if (typeof req.query.jobName !== 'undefined' && typeof req.query.jobName !== 'string') {
+  if (
+    typeof req.query.jobName !== 'undefined' &&
+    typeof req.query.jobName !== 'string'
+  ) {
     res.status(400).send('Invalid jobName')
     return
   }
@@ -105,8 +107,12 @@ http('check-downloadable', async (req, res) => {
   }
   const { jobName, name } = req.query
 
+  const { transcodedBucket } = CONTEXT
+  const bucket = storage.bucket(transcodedBucket)
+  const file = bucket.file(name)
+
   if (typeof jobName === 'undefined') {
-    const exists = await setContentDisposition(storage, name)
+    const exists = await setContentDisposition(file)
     if (exists) {
       res.status(204).send('')
     } else {
@@ -114,12 +120,12 @@ http('check-downloadable', async (req, res) => {
     }
   } else {
     const [{ error, state }] = await transcoderServiceClient.getJob({
-      name: jobName
+      name: jobName,
     })
     if (state === 'PENDING' || state === 'RUNNING') {
       res.status(404).send('Video not ready')
     } else if (state === 'SUCCEEDED') {
-      const exists = await setContentDisposition(storage, name)
+      const exists = await setContentDisposition(file)
       if (exists) {
         res.status(204).send('')
       } else {

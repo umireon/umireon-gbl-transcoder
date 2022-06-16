@@ -2,6 +2,7 @@ export interface AppContext {
   readonly checkDownloadableEndpoint: string
   readonly location: string
   readonly transcodeVideoEndpoint: string
+  readonly transcodedBucket: string
 }
 
 export const DEFAULT_CONTEXT: AppContext = {
@@ -10,6 +11,7 @@ export const DEFAULT_CONTEXT: AppContext = {
   location: 'asia-east1',
   transcodeVideoEndpoint:
     'https://umireon-gbl-transcoder-cuxpzdah.an.gateway.dev/transcode-video',
+  transcodedBucket: 'umireon-gbl-transcoder-transcoded-videos',
 } as const
 
 export const firebaseConfig = {
