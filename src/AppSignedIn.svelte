@@ -67,7 +67,7 @@
     const query = new URLSearchParams({
       basename,
       inputUri: `gs://${bucket}/${fullPath}`,
-      outputUri: `gs://${transcodedBucket}`,
+      outputUri: `gs://${transcodedBucket}/`,
     })
     const idToken = await user.getIdToken()
     const response = await _fetch(`${transcodeVideoEndpoint}?${query}`, {
