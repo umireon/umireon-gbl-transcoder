@@ -1,9 +1,7 @@
 <script lang="ts">
-  import { type AppContext, DEFAULT_CONTEXT } from '../common/constants'
+  import { type AppContext } from '../common/constants'
   import { type Auth, type User } from 'firebase/auth'
 
-  import { type Analytics } from 'firebase/analytics'
-  import { type Firestore } from 'firebase/firestore'
   import Logout from './lib/Logout.svelte'
   import {
     type FirebaseStorage,
@@ -16,7 +14,8 @@
   import 'three-dots/dist/three-dots.min.css'
 
   export let auth: Auth
-  export let storage: FirebaseStorage
+  export let defaultStorage: FirebaseStorage
+  export let transcodedStorage: FirebaseStorage
 
   export let user: User
 
@@ -27,7 +26,7 @@
   let disabled: boolean = true
   let estimatedTimeOfArrivalInSeconds: number = -1
 
-  const context = DEFAULT_CONTEXT
+  export let context: AppContext
 
   type UploadVideoOnProgressFunction = (snapshot: UploadTaskSnapshot) => void
 
@@ -36,7 +35,7 @@
     onProgress: UploadVideoOnProgressFunction,
     _fetch = fetch
   ): Promise<UploadTaskSnapshot> {
-    const storageRef = ref(storage, `source/${file.name}`)
+    const storageRef = ref(defaultStorage, `${file.name}`)
     const uploadTask = uploadBytesResumable(storageRef, file)
     return new Promise<UploadTaskSnapshot>((resolve, reject) => {
       uploadTask.on(
@@ -58,7 +57,7 @@
   }
 
   export async function startTranscode(
-    { transcodeVideoEndpoint }: AppContext,
+    { transcodeVideoEndpoint, transcodedBucket }: AppContext,
     snapshot: UploadTaskSnapshot,
     user: User,
     _fetch = fetch
@@ -68,7 +67,7 @@
     const query = new URLSearchParams({
       basename,
       inputUri: `gs://${bucket}/${fullPath}`,
-      outputUri: `gs://${bucket}/transcoded/`,
+      outputUri: `gs://${transcodedBucket}`,
     })
     const idToken = await user.getIdToken()
     const response = await _fetch(`${transcodeVideoEndpoint}?${query}`, {
@@ -150,10 +149,10 @@
     }
     const { name } = file
     const basename = name.replace(/\.[^.]+$/, '')
-    src = await getDownloadURL(ref(storage, `transcoded/${basename}.mp4`))
+    src = await getDownloadURL(ref(transcodedStorage, `${basename}.mp4`))
     disabled = false
   }
-  
+
   export async function handleChangeFile() {
     const [file] = files
     if (typeof file !== 'undefined') {
@@ -162,7 +161,7 @@
       try {
         const ok = await checkDownloadable(context, transcodedVideo)
         if (ok) {
-          src = await getDownloadURL(ref(storage, `transcoded/${name}`))
+          src = await getDownloadURL(ref(transcodedStorage, name))
         }
         disabled = !ok
       } catch (e) {
@@ -189,7 +188,9 @@
     <div id="uploading" class="dot-bricks" style="margin: 10px;" />
   {/if}
   {#if estimatedTimeOfArrivalInSeconds > 0}
-    <p>Transcoding will finish in {estimatedTimeOfArrivalInSeconds} seconds...</p>
+    <p>
+      Transcoding will finish in {estimatedTimeOfArrivalInSeconds} seconds...
+    </p>
   {/if}
   {#if estimatedTimeOfArrivalInSeconds === 0}
     <p>Transcoding finished!</p>
