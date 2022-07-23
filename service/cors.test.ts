@@ -24,7 +24,7 @@ test('handleCors sends allowance for chattranslatorbot.web.app', () => {
   const req = {
     get(name: string) {
       if (name.toLowerCase() === 'origin') {
-        return 'https://chattranslatorbot.web.app'
+        return 'https://umireon-gbl-transcoder.web.app'
       } else {
         return ''
       }
@@ -35,14 +35,14 @@ test('handleCors sends allowance for chattranslatorbot.web.app', () => {
   expect(handleCors(req, res)).toBe(true)
   expect(set.mock.calls.length).toBe(1)
   expect(set.mock.calls[0][0]).toBe('Access-Control-Allow-Origin')
-  expect(set.mock.calls[0][1]).toBe('https://chattranslatorbot.web.app')
+  expect(set.mock.calls[0][1]).toBe('https://umireon-gbl-transcoder.web.app')
 })
 
 test('handleCors sends preflight response and terminates request', () => {
   const req = {
     get(name: string) {
       if (name.toLowerCase() === 'origin') {
-        return 'https://chattranslatorbot.web.app'
+        return 'https://umireon-gbl-transcoder.web.app'
       } else {
         return ''
       }
