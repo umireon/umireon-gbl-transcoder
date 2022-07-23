@@ -1,70 +1,70 @@
-swagger: '2.0'
+swagger: "2.0"
 info:
-  title: 'umireon-gbl-transcoder backend'
-  description: 'API of the GBL video transcoder.'
-  version: '0.1.0'
+  title: "umireon-gbl-transcoder backend"
+  description: "API of the GBL video transcoder."
+  version: "0.1.0"
 schemes:
-  - 'https'
+  - "https"
 produces:
-  - 'application/json'
+  - "application/json"
 securityDefinitions:
   firebase:
-    authorizationUrl: ''
-    flow: 'implicit'
-    type: 'oauth2'
-    x-google-issuer: 'https://securetoken.google.com/umireon-gbl-transcoder'
-    x-google-jwks_uri: 'https://www.googleapis.com/service_accounts/v1/metadata/x509/securetoken@system.gserviceaccount.com'
-    x-google-audiences: 'umireon-gbl-transcoder'
+    authorizationUrl: ""
+    flow: "implicit"
+    type: "oauth2"
+    x-google-issuer: "https://securetoken.google.com/umireon-gbl-transcoder"
+    x-google-jwks_uri: "https://www.googleapis.com/service_accounts/v1/metadata/x509/securetoken@system.gserviceaccount.com"
+    x-google-audiences: "umireon-gbl-transcoder"
 paths:
   /transcode-video:
     get:
-      summary: 'Transcode video'
-      operationId: 'transcode-video'
+      summary: "Transcode video"
+      operationId: "transcode-video"
       x-google-backend:
-        address: 'https://transcode-video-zk2hmhvnrq-an.a.run.app'
+        address: "https://transcode-video-zk2hmhvnrq-an.a.run.app"
       security:
         - firebase: []
       parameters:
-        - in: 'query'
-          name: 'inputUri'
-          type: 'string'
-        - in: 'query'
-          name: 'outputUri'
-          type: 'string'
+        - in: "query"
+          name: "inputUri"
+          type: "string"
+        - in: "query"
+          name: "outputUri"
+          type: "string"
       responses:
-        '204':
-          description: 'A successful response'
+        "204":
+          description: "A successful response"
     options:
-      summary: 'Transcode video Preflight'
-      operationId: 'transcode-video-preflight'
+      summary: "Transcode video Preflight"
+      operationId: "transcode-video-preflight"
       x-google-backend:
-        address: 'https://transcode-video-zk2hmhvnrq-an.a.run.app'
+        address: "https://transcode-video-zk2hmhvnrq-an.a.run.app"
       responses:
-        '204':
-          description: 'A successful response'
+        "204":
+          description: "A successful response"
 
   /check-downloadable:
     get:
-      summary: 'Check downloadable'
-      operationId: 'check-downloadable'
+      summary: "Check downloadable"
+      operationId: "check-downloadable"
       x-google-backend:
-        address: 'https://check-downloadable-zk2hmhvnrq-an.a.run.app'
+        address: "https://check-downloadable-zk2hmhvnrq-an.a.run.app"
       security:
         - firebase: []
       parameters:
-        - in: 'query'
-          name: 'name'
-          type: 'string'
+        - in: "query"
+          name: "name"
+          type: "string"
       responses:
-        '204':
-          description: 'A successful response'
-        '404':
-          description: 'Content not ready'
+        "204":
+          description: "A successful response"
+        "404":
+          description: "Content not ready"
     options:
-      summary: 'Check downloadable Preflight'
-      operationId: 'check-downloadable-preflight'
+      summary: "Check downloadable Preflight"
+      operationId: "check-downloadable-preflight"
       x-google-backend:
-        address: 'https://check-downloadable-zk2hmhvnrq-an.a.run.app'
+        address: "https://check-downloadable-zk2hmhvnrq-an.a.run.app"
       responses:
-        '204':
-          description: 'A successful response'
+        "204":
+          description: "A successful response"
