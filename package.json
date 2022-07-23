@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "The GBL video transcoder.",
   "scripts": {
-    "build-functions": "swc --out-dir=. common/*.ts index.ts service/*.ts",
+    "build-functions": "swc --out-dir=. *.ts && swc --out-dir=common common/*.ts && swc --out-dir=service service/*.ts",
     "build": "vite build",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "dev": "vite",
