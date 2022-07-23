@@ -46,7 +46,8 @@ http('transcode-video', async (req, res) => {
               h264: {
                 bitrateBps: 2000000,
                 frameRate: 60,
-                profile: 'main',
+                profile: 'high',
+                widthPixels: 1920,
               },
             },
           },
