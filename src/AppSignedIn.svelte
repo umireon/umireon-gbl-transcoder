@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { type AppContext } from "../common/constants";
   import { type Auth, type User } from "firebase/auth";
-
-  import Logout from "./lib/Logout.svelte";
   import {
     type FirebaseStorage,
+    UploadTaskSnapshot,
+    getDownloadURL,
     ref,
     uploadBytesResumable,
-    getDownloadURL,
-    UploadTaskSnapshot,
   } from "firebase/storage";
+  
+  import { type AppContext } from "../common/constants";
+  import Logout from "./lib/Logout.svelte";
 
   import "three-dots/dist/three-dots.min.css";
 
