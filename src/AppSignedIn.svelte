@@ -7,7 +7,7 @@
     ref,
     uploadBytesResumable,
   } from "firebase/storage";
-  
+
   import { type AppContext } from "../common/constants";
   import Logout from "./lib/Logout.svelte";
 
