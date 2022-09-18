@@ -180,6 +180,9 @@
     <h2 style="color: red;">{error.message}</h2>
   {/if}
   <p>
+    <a href="edit.html">編集</a>
+  </p>
+  <p>
     <input type="file" bind:files on:change={handleChangeFile} />
     <button on:click={handleClickSubmit}>送信</button>
   </p>
