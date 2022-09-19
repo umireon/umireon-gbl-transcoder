@@ -7,7 +7,7 @@
     "editorconfig.editorconfig",
     "svelte.svelte-vscode"
   ],
-  "forwardPorts": [3000],
+  "forwardPorts": [5173],
   "postCreateCommand": "npm install",
   "remoteUser": "node"
 }

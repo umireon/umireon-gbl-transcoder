@@ -13,12 +13,21 @@
     videoRef.playbackRate = 1.0;
   }
 
-  function handlePlaybackRate4x() {
-    videoRef.playbackRate = 4.0;
+  function handlePlaybackRate2x() {
+    videoRef.playbackRate = 2.0;
   }
 
   function handleFullscreen() {
-    videoRef.requestFullscreen()
+    if (!!videoRef.requestFullscreen) {
+      videoRef.requestFullscreen();
+    } else {
+      const anyVideoRef = videoRef as any 
+      if (!!anyVideoRef.webkitRequestFullscreen) {
+        anyVideoRef.webkitRequestFullscreen();
+      } else if (!!anyVideoRef.webkitEnterFullscreen) {
+        anyVideoRef.webkitEnterFullscreen();
+      }
+    }
   }
 </script>
 
@@ -34,9 +43,9 @@
     <li>アップロードしたい動画の開始点まで再生してください</li>
     <li>この状態で画面収録を開始してください、音声も収録してください</li>
   </ol>
-  <input type="file" bind:files on:change={handleFileChange} />
+  <input type="file" multiple bind:files on:change={handleFileChange} />
   <button on:click={handlePlaybackRate1x}>1x</button>
-  <button on:click={handlePlaybackRate4x}>4x</button>
+  <button on:click={handlePlaybackRate2x}>2x</button>
   <button on:click={handleFullscreen}>全画面</button>
   <div>
     <video {src} controls bind:this={videoRef} width="400"></video>
