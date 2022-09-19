@@ -18,13 +18,13 @@
   }
 
   function handleFullscreen() {
-    if (!!videoRef.requestFullscreen) {
+    if (videoRef.requestFullscreen) {
       videoRef.requestFullscreen();
     } else {
       const anyVideoRef = videoRef as any 
-      if (!!anyVideoRef.webkitRequestFullscreen) {
+      if (anyVideoRef.webkitRequestFullscreen) {
         anyVideoRef.webkitRequestFullscreen();
-      } else if (!!anyVideoRef.webkitEnterFullscreen) {
+      } else if (anyVideoRef.webkitEnterFullscreen) {
         anyVideoRef.webkitEnterFullscreen();
       }
     }
