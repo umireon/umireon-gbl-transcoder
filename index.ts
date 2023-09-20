@@ -44,7 +44,7 @@ http("transcode-video", async (req, res) => {
             key: "video-stream0",
             videoStream: {
               h264: {
-                bitrateBps: 2000000,
+                bitrateBps: 2000000 / 4,
                 frameRate: 60,
                 heightPixels: 1920,
                 profile: "main",
