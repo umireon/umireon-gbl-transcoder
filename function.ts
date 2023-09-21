@@ -46,6 +46,7 @@ http("transcode-video", async (req, res) => {
               h264: {
                 bFrameCount: 2,
                 bitrateBps: 1000000,
+                frameRate: 120,
                 heightPixels: 480,
                 profile: "high",
               },
