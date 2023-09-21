@@ -120,7 +120,7 @@
       uploadProgressText = `${bytesTransferred}B / ${totalBytes}B`;
     });
     uploadProgressText = "Completed!";
-    estimatedTimeOfArrivalInSeconds = 120;
+    estimatedTimeOfArrivalInSeconds = 480;
     const result = await startTranscode(context, snapshot, user);
     let ok = await checkDownloadable(context, result);
     try {
